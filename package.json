@@ -1,0 +1,20 @@
+{
+  "name": "rag-starter-kit",
+  "version": "1.0.0",
+  "description": "A plug-and-play RAG (Retrieval-Augmented Generation) starter kit with Node.js, React, Pinecone, and OpenAI",
+  "main": "server/index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd server && npm run dev",
+    "client": "cd client && npm start",
+    "build": "cd client && npm run build",
+    "install-all": "npm install && cd server && npm install && cd ../client && npm install",
+    "setup": "npm run install-all && echo 'Setup complete! Run npm run dev to start the application'"
+  },
+  "keywords": ["rag", "ai", "openai", "pinecone", "react", "nodejs"],
+  "author": "RAG Starter Kit",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+} 
