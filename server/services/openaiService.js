@@ -40,7 +40,7 @@ async function generateChatCompletion(question, context = '') {
   try {
     const systemMessage = {
       role: 'system',
-      content: `You are a helpful AI assistant. Answer the user's question using ONLY the context below. If the answer is not in the context, say: "I don't have enough information to answer that."
+      content: `You are a helpful AI assistant. Answer the user's question using ONLY the information provided in the context below. Look carefully through the context to find the specific information requested. If the answer is not in the context, say "I don't have enough information to answer that question."
 
 Context:
 ${context}`
@@ -53,9 +53,9 @@ ${context}`
 
     const response = await openai.chat.completions.create({
       model: process.env.OPENAI_MODEL || 'gpt-3.5-turbo',
-      messages: [systemMessage, userMessage], // ✅ only current question and context
-      temperature: 0.2, // ✅ lower temperature for factual response
-      max_tokens: 1000,
+      messages: [systemMessage, userMessage],
+      temperature: 0.3, // Slightly higher temperature for better response accuracy
+      max_tokens: 500, // Shorter responses for more focused answers
       stream: false
     });
 
@@ -72,17 +72,10 @@ async function generateStreamingChatCompletion(messages, context = '', onChunk) 
   try {
     const systemMessage = {
       role: 'system',
-      content: `You are a helpful AI assistant. Answer the user's question based ONLY on the provided context. If the context doesn't contain the answer, say "I don't have enough information to answer that question."
+      content: `You are a helpful AI assistant. Answer the user's question using ONLY the information provided in the context below. Look carefully through the context to find the specific information requested. If the answer is not in the context, say "I don't have enough information to answer that question."
 
 Context:
-${context}
-
-Instructions:
-- Answer the user's question directly and specifically
-- Use ONLY information from the provided context
-- Be concise and accurate
-- If the answer is in the context, provide it clearly
-- Do not ask follow-up questions unless specifically requested`
+${context}`
     };
 
     const allMessages = [systemMessage, ...messages];
@@ -90,8 +83,8 @@ Instructions:
     const stream = await openai.chat.completions.create({
       model: process.env.OPENAI_MODEL || 'gpt-3.5-turbo',
       messages: allMessages,
-      temperature: 0.7,
-      max_tokens: 1000,
+      temperature: 0.3, // Slightly higher temperature for better response accuracy
+      max_tokens: 500, // Shorter responses for more focused answers
       stream: true
     });
 

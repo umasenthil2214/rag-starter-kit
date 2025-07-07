@@ -83,38 +83,10 @@ router.post('/send', async (req, res) => {
       console.log('\n🚀 STEP 5: Sending to OpenAI ChatGPT (STREAMING MODE)');
       console.log('📝 User Question:', message);
       console.log('📚 Context Length:', context.length, 'characters');
-      console.log('📖 Full Context being sent to OpenAI:');
+      console.log('📖 Context being sent to OpenAI:');
       console.log('---START CONTEXT---');
       console.log(context);
       console.log('---END CONTEXT---');
-      // Print exactly what's being sent (raw)
-      console.log('\n🔍 RAW CONTEXT BEING SENT:');
-      console.log('"' + context + '"');
-      
-      // Log the complete prompt structure
-      console.log('\n📋 COMPLETE PROMPT STRUCTURE:');
-      console.log('---START COMPLETE PROMPT---');
-      console.log('System Message:');
-      console.log(`You are a helpful AI assistant. Use the following context to answer the user's question. If the context doesn't contain relevant information, say so politely.
-
-Context:
-${context}
-
-Instructions:
-- Answer based on the provided context
-- Be concise but thorough
-- If you don't know something, say so
-- Cite specific parts of the context when relevant`);
-      
-      if (conversation.slice(0, -1).length > 0) {
-        console.log('\nConversation History:');
-        conversation.slice(0, -1).forEach((msg, index) => {
-          console.log(`${msg.role}: ${msg.content}`);
-        });
-      }
-      
-      console.log(`\nUser: ${message}`);
-      console.log('---END COMPLETE PROMPT---');
       
       res.writeHead(200, {
         'Content-Type': 'text/plain',
@@ -156,41 +128,13 @@ Instructions:
       console.log('\n🚀 STEP 5: Sending to OpenAI ChatGPT');
       console.log('📝 User Question:', message);
       console.log('📚 Context Length:', context.length, 'characters');
-      console.log('📖 Full Context being sent to OpenAI:');
+      console.log('📖 Context being sent to OpenAI:');
       console.log('---START CONTEXT---');
       console.log(context);
       console.log('---END CONTEXT---');
-      // Print exactly what's being sent (raw)
-      console.log('\n🔍 RAW CONTEXT BEING SENT:');
-      console.log('"' + context + '"');
-      
-      // Log the complete prompt structure
-      console.log('\n📋 COMPLETE PROMPT STRUCTURE:');
-      console.log('---START COMPLETE PROMPT---');
-      console.log('System Message:');
-      console.log(`You are a helpful AI assistant. Use the following context to answer the user's question. If the context doesn't contain relevant information, say so politely.
-
-Context:
-${context}
-
-Instructions:
-- Answer based on the provided context
-- Be concise but thorough
-- If you don't know something, say so
-- Cite specific parts of the context when relevant`);
-      
-      if (conversation.slice(0, -1).length > 0) {
-        console.log('\nConversation History:');
-        conversation.slice(0, -1).forEach((msg, index) => {
-          console.log(`${msg.role}: ${msg.content}`);
-        });
-      }
-      
-      console.log(`\nUser: ${message}`);
-      console.log('---END COMPLETE PROMPT---');
       
       aiResponse = await generateChatCompletion(
-        conversation.slice(0, -1), // Exclude the current message
+        message, // Pass the current user message
         context
       );
       

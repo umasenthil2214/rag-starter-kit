@@ -78,20 +78,23 @@ function splitTextIntoChunks(text, chunkSize = 1000, overlap = 200) {
 
       // If this isn't the last chunk, try to break at a sentence boundary
       if (endIndex < cleanedText.length) {
-        // Look for sentence endings (.!?) followed by space or newline
-        const sentenceEnd = cleanedText.lastIndexOf('.', endIndex);
-        const exclamationEnd = cleanedText.lastIndexOf('!', endIndex);
-        const questionEnd = cleanedText.lastIndexOf('?', endIndex);
+        // Look for sentence endings (.!?) in a wider range
+        const searchStart = Math.max(startIndex, endIndex - 400);
+        const searchEnd = endIndex;
+        
+        const sentenceEnd = cleanedText.lastIndexOf('.', searchEnd);
+        const exclamationEnd = cleanedText.lastIndexOf('!', searchEnd);
+        const questionEnd = cleanedText.lastIndexOf('?', searchEnd);
         
         const lastSentenceEnd = Math.max(sentenceEnd, exclamationEnd, questionEnd);
         
-        // If we found a sentence end within the last 200 characters, use it
-        if (lastSentenceEnd > startIndex + chunkSize - 200) {
+        // If we found a sentence end within the search range, use it
+        if (lastSentenceEnd >= searchStart && lastSentenceEnd > startIndex + chunkSize - 400) {
           endIndex = lastSentenceEnd + 1;
         } else {
           // Otherwise, try to break at a word boundary
           const lastSpace = cleanedText.lastIndexOf(' ', endIndex);
-          if (lastSpace > startIndex + chunkSize - 100) {
+          if (lastSpace > startIndex + chunkSize - 200) {
             endIndex = lastSpace;
           }
         }
@@ -126,10 +129,26 @@ async function processDocument(filePath, originalName, fileType) {
       throw new Error('No text content found in document');
     }
 
-    // Split text into chunks
-    const chunks = splitTextIntoChunks(text);
+    console.log(`📖 ORIGINAL FILE CONTENT (${text.length} characters):`);
+    console.log('---START ORIGINAL CONTENT---');
+    console.log(text);
+    console.log('---END ORIGINAL CONTENT---');
+
+    // Use the full original text for chunking (no filtering)
+    const processedText = text;
+    
+    // Split processed text into chunks
+    const chunks = splitTextIntoChunks(processedText);
     
     console.log(`✅ Extracted ${chunks.length} chunks from ${originalName}`);
+    
+    // Log each chunk that will be stored
+    chunks.forEach((chunk, index) => {
+      console.log(`\n📦 CHUNK ${index + 1} (${chunk.length} characters):`);
+      console.log('---START CHUNK---');
+      console.log(chunk);
+      console.log('---END CHUNK---');
+    });
 
     // Create metadata for each chunk
     const documentId = uuidv4();
@@ -189,11 +208,77 @@ async function getFileSize(filePath) {
   }
 }
 
+// Split structured text into individual information lines
+function splitStructuredText(text) {
+  try {
+    console.log(`🔍 Analyzing text for structured content...`);
+    
+    // Split by common separators and clean up
+    const allLines = text.split(/[\n\r]+/); // split by newlines
+    console.log(`📝 Found ${allLines.length} total lines`);
+    
+    const trimmedLines = allLines
+      .map(line => line.trim()) // remove leading/trailing whitespace
+      .filter(line => line.length > 0); // remove empty lines
+    console.log(`📝 After trimming: ${trimmedLines.length} non-empty lines`);
+    
+    const structuredLines = trimmedLines.filter(line => {
+      // Keep lines that look like structured data (key-value pairs)
+      const isStructured = line.includes(':') || 
+             line.includes('=') || 
+             line.match(/^[A-Z][a-z\s]+:/) || // Title: Value
+             line.match(/^[A-Z\s]+:/) || // KEY: value
+             line.match(/^[a-z\s]+:\s/) || // key: value
+             line.match(/^[A-Z][a-z]+:\s/); // Key: value
+      
+      if (!isStructured) {
+        console.log(`❌ Filtered out line: "${line}"`);
+      }
+      
+      return isStructured;
+    });
+    
+    console.log(`✅ Kept ${structuredLines.length} structured lines`);
+    return structuredLines;
+  } catch (error) {
+    console.error('❌ Failed to split structured text:', error);
+    return [text]; // Return original text as single line if splitting fails
+  }
+}
+
+// Process any document and extract structured information
+function processStructuredDocument(text) {
+  try {
+    console.log(`🔧 Processing document for structured information...`);
+    
+    // First try to split as structured text
+    const structuredLines = splitStructuredText(text);
+    
+    if (structuredLines.length > 1) {
+      // If we found multiple structured lines, use them
+      console.log(`📋 Found ${structuredLines.length} structured information lines`);
+      const result = structuredLines.join('\n');
+      console.log(`📋 Final processed text length: ${result.length} characters`);
+      return result;
+    } else {
+      // If no structured format found, return original text
+      console.log(`📋 No structured format detected, using original text`);
+      console.log(`📋 Original text length: ${text.length} characters`);
+      return text;
+    }
+  } catch (error) {
+    console.error('❌ Failed to process structured document:', error);
+    return text; // Return original text if processing fails
+  }
+}
+
 module.exports = {
   extractTextFromFile,
   splitTextIntoChunks,
   processDocument,
   getFileType,
   isValidFileType,
-  getFileSize
+  getFileSize,
+  splitStructuredText,
+  processStructuredDocument
 }; 
