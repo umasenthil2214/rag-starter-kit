@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Upload, MessageCircle, FileText, Settings, Bot } from 'lucide-react';
+import { Upload, MessageCircle, FileText, Settings, Bot, Menu, X } from 'lucide-react';
 import DocumentUpload from './components/DocumentUpload';
 import ChatInterface from './components/ChatInterface';
 import DocumentList from './components/DocumentList';
@@ -8,6 +8,7 @@ function App() {
   const [activeTab, setActiveTab] = useState('chat');
   const [documents, setDocuments] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const tabs = [
     { id: 'chat', name: 'Chat', icon: MessageCircle },
@@ -20,41 +21,38 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-3">
-              <Bot className="h-8 w-8 text-primary-600" />
-              <h1 className="text-xl font-semibold text-gray-900">
-                RAG Starter Kit
-              </h1>
+    <div className="min-h-screen bg-white">
+      {/* Sidebar */}
+      <aside
+        className={`sidebar fixed top-0 left-0 h-full z-30 w-64 bg-gray-50 border-r border-gray-200 transition-transform duration-300 ease-in-out
+          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+          lg:translate-x-0 lg:relative lg:block`}
+      >
+        <div className="p-6 flex flex-col h-full">
+          {/* Logo */}
+          <div className="flex items-center space-x-3 mb-8">
+            <div className="w-8 h-8 bg-gray-900 rounded-md flex items-center justify-center">
+              <Bot className="h-5 w-5 text-white" />
             </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-500">
-                Powered by OpenAI & Pinecone
-              </span>
+            <div>
+              <h1 className="notion-title text-lg">RAG Assistant</h1>
+              <p className="text-xs text-gray-500">AI-powered document chat</p>
             </div>
           </div>
-        </div>
-      </header>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Tab Navigation */}
-        <div className="mb-8">
-          <nav className="flex space-x-8">
+          {/* Navigation */}
+          <nav className="space-y-2 flex-1">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center space-x-2 px-3 py-2 rounded-lg font-medium transition-colors duration-200 ${
-                    activeTab === tab.id
-                      ? 'bg-primary-100 text-primary-700'
-                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                  onClick={() => {
+                    setActiveTab(tab.id);
+                    setSidebarOpen(false);
+                  }}
+                  className={`notion-nav-item w-full ${
+                    activeTab === tab.id ? 'active' : ''
                   }`}
                 >
                   <Icon className="h-5 w-5" />
@@ -63,44 +61,62 @@ function App() {
               );
             })}
           </nav>
-        </div>
 
-        {/* Tab Content */}
-        <div className="animate-fade-in">
-          {activeTab === 'chat' && (
-            <ChatInterface />
-          )}
-          
-          {activeTab === 'upload' && (
-            <DocumentUpload 
-              onDocumentUploaded={handleDocumentUploaded}
-              isLoading={isLoading}
-              setIsLoading={setIsLoading}
-            />
-          )}
-          
-          {activeTab === 'documents' && (
-            <DocumentList 
-              documents={documents}
-              setDocuments={setDocuments}
-            />
-          )}
-        </div>
-      </main>
-
-      {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 mt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="text-center text-sm text-gray-500">
-            <p>
-              Built with React, Node.js, OpenAI, and Pinecone
-            </p>
-            <p className="mt-1">
-              A plug-and-play RAG (Retrieval-Augmented Generation) starter kit
-            </p>
+          {/* Footer */}
+          <div className="mt-auto pt-8">
+            <div className="text-xs text-gray-500 space-y-1">
+              <p>Powered by OpenAI & Pinecone</p>
+              <p>RAG Starter Kit</p>
+            </div>
           </div>
         </div>
-      </footer>
+      </aside>
+
+      {/* Mobile Header */}
+      <div className="lg:hidden notion-header fixed top-0 left-0 right-0 z-40">
+        <div className="flex items-center space-x-3">
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="p-2 rounded-md hover:bg-gray-100 transition-colors duration-200"
+          >
+            {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+          <Bot className="h-6 w-6 text-gray-900" />
+          <h1 className="notion-title text-lg">RAG Assistant</h1>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="lg:ml-64 transition-all duration-300 pt-16 lg:pt-0">
+        <main className="p-6 lg:p-8">
+          <div className="animate-fade-in">
+            {activeTab === 'chat' && (
+              <ChatInterface />
+            )}
+            {activeTab === 'upload' && (
+              <DocumentUpload 
+                onDocumentUploaded={handleDocumentUploaded}
+                isLoading={isLoading}
+                setIsLoading={setIsLoading}
+              />
+            )}
+            {activeTab === 'documents' && (
+              <DocumentList 
+                documents={documents}
+                setDocuments={setDocuments}
+              />
+            )}
+          </div>
+        </main>
+      </div>
+
+      {/* Mobile overlay */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
     </div>
   );
 }

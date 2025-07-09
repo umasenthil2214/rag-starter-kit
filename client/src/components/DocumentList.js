@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, Trash2, Download, Search, Filter, Calendar, File } from 'lucide-react';
+import { FileText, Trash2, Download, Search, Filter, Calendar, File, Database, RefreshCw } from 'lucide-react';
 import { documentAPI, handleAPIError } from '../services/api';
 
 const DocumentList = ({ documents, setDocuments }) => {
@@ -107,9 +107,9 @@ const DocumentList = ({ documents, setDocuments }) => {
     return (
       <div className="max-w-6xl mx-auto">
         <div className="card">
-          <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
-            <span className="ml-2 text-gray-600">Loading documents...</span>
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+            <span className="ml-3 text-gray-600">Loading documents...</span>
           </div>
         </div>
       </div>
@@ -120,52 +120,61 @@ const DocumentList = ({ documents, setDocuments }) => {
     <div className="max-w-6xl mx-auto">
       {/* Header */}
       <div className="card mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-semibold text-gray-900">Document Library</h2>
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+              <Database className="h-5 w-5 text-gray-600" />
+            </div>
+            <div>
+              <h2 className="notion-title">Document Library</h2>
+              <p className="notion-text text-sm">Manage your uploaded documents</p>
+            </div>
+          </div>
           <button
             onClick={loadDocuments}
-            className="btn-secondary"
+            className="btn-ghost flex items-center space-x-2"
           >
-            Refresh
+            <RefreshCw className="h-4 w-4" />
+            <span>Refresh</span>
           </button>
         </div>
 
         {/* Stats */}
         {stats && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <div className="bg-blue-50 p-4 rounded-lg">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
               <div className="flex items-center">
-                <FileText className="h-8 w-8 text-blue-600" />
+                <FileText className="h-6 w-6 text-gray-600" />
                 <div className="ml-3">
-                  <p className="text-sm font-medium text-blue-600">Total Documents</p>
-                  <p className="text-2xl font-bold text-blue-900">{documents.length}</p>
+                  <p className="text-sm font-medium text-gray-600">Total Documents</p>
+                  <p className="text-xl font-bold text-gray-900">{documents.length}</p>
                 </div>
               </div>
             </div>
-            <div className="bg-green-50 p-4 rounded-lg">
+            <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
               <div className="flex items-center">
-                <FileText className="h-8 w-8 text-green-600" />
+                <Database className="h-6 w-6 text-gray-600" />
                 <div className="ml-3">
-                  <p className="text-sm font-medium text-green-600">Total Vectors</p>
-                  <p className="text-2xl font-bold text-green-900">{stats.totalVectors || 0}</p>
+                  <p className="text-sm font-medium text-gray-600">Total Vectors</p>
+                  <p className="text-xl font-bold text-gray-900">{stats.totalVectors || 0}</p>
                 </div>
               </div>
             </div>
-            <div className="bg-purple-50 p-4 rounded-lg">
+            <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
               <div className="flex items-center">
-                <FileText className="h-8 w-8 text-purple-600" />
+                <Database className="h-6 w-6 text-gray-600" />
                 <div className="ml-3">
-                  <p className="text-sm font-medium text-purple-600">Index Dimension</p>
-                  <p className="text-2xl font-bold text-purple-900">{stats.dimension || 1536}</p>
+                  <p className="text-sm font-medium text-gray-600">Index Dimension</p>
+                  <p className="text-xl font-bold text-gray-900">{stats.dimension || 1536}</p>
                 </div>
               </div>
             </div>
-            <div className="bg-orange-50 p-4 rounded-lg">
+            <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
               <div className="flex items-center">
-                <FileText className="h-8 w-8 text-orange-600" />
+                <Database className="h-6 w-6 text-gray-600" />
                 <div className="ml-3">
-                  <p className="text-sm font-medium text-orange-600">Index Fullness</p>
-                  <p className="text-2xl font-bold text-orange-900">{Math.round((stats.indexFullness || 0) * 100)}%</p>
+                  <p className="text-sm font-medium text-gray-600">Index Fullness</p>
+                  <p className="text-xl font-bold text-gray-900">{Math.round((stats.indexFullness || 0) * 100)}%</p>
                 </div>
               </div>
             </div>
@@ -212,11 +221,13 @@ const DocumentList = ({ documents, setDocuments }) => {
       <div className="card">
         {filteredAndSortedDocuments.length === 0 ? (
           <div className="text-center py-12">
-            <FileText className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <FileText className="h-8 w-8 text-gray-400" />
+            </div>
+            <h3 className="notion-subtitle mb-2">
               {documents.length === 0 ? 'No documents uploaded' : 'No documents found'}
             </h3>
-            <p className="text-gray-600">
+            <p className="notion-text">
               {documents.length === 0 
                 ? 'Upload your first document to get started' 
                 : 'Try adjusting your search or filter criteria'
@@ -250,7 +261,7 @@ const DocumentList = ({ documents, setDocuments }) => {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredAndSortedDocuments.map((doc) => (
-                  <tr key={doc.id} className="hover:bg-gray-50">
+                  <tr key={doc.id} className="hover:bg-gray-50 transition-colors duration-200">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         {getFileIcon(doc.type)}
@@ -265,7 +276,7 @@ const DocumentList = ({ documents, setDocuments }) => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                      <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
                         {doc.type?.toUpperCase()}
                       </span>
                     </td>
@@ -281,7 +292,7 @@ const DocumentList = ({ documents, setDocuments }) => {
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <button
                         onClick={() => deleteDocument(doc.id)}
-                        className="text-red-600 hover:text-red-900 ml-2"
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50 p-2 rounded-md transition-colors duration-200"
                         title="Delete document"
                       >
                         <Trash2 className="h-4 w-4" />
