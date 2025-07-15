@@ -2,17 +2,21 @@ import axios from 'axios';
 
 // Create axios instance with base configuration
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:5001/api',
   timeout: 30000, // 30 seconds timeout
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Request interceptor for logging
+// Add this at the top of the file, after the existing interceptors
+console.log('🔧 API Base URL:', api.defaults.baseURL);
+console.log('🔧 Current Environment:', process.env.NODE_ENV);
+
+// Add request interceptor for debugging
 api.interceptors.request.use(
   (config) => {
-    console.log(`🚀 API Request: ${config.method?.toUpperCase()} ${config.url}`);
+    console.log(`🚀 API Request: ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`);
     return config;
   },
   (error) => {
@@ -29,6 +33,9 @@ api.interceptors.response.use(
   },
   (error) => {
     console.error('❌ API Response Error:', error.response?.data || error.message);
+    if (error.code === 'ECONNREFUSED') {
+      console.error('🔥 Server is not running! Make sure the backend is started on port 5001');
+    }
     return Promise.reject(error);
   }
 );

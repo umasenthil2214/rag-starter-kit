@@ -1,10 +1,10 @@
-import { Pinecone } from '@pinecone-database/pinecone';
+const { Pinecone } = require('@pinecone-database/pinecone');
 
 let pinecone;
 let index;
 
 // Initialize Pinecone connection
-export async function initializePinecone() {
+async function initializePinecone() {
   try {
     // Create Pinecone instance
     pinecone = new Pinecone({
@@ -69,7 +69,7 @@ export async function initializePinecone() {
 }
 
 // Upsert vectors (store embeddings)
-export async function upsertVectors(vectors) {
+async function upsertVectors(vectors) {
   try {
     if (!index) {
       throw new Error('Pinecone index not initialized');
@@ -85,7 +85,7 @@ export async function upsertVectors(vectors) {
 }
 
 // Query vectors (search for similar embeddings)
-export async function queryVectors(vector, topK = 5, filter = null) {
+async function queryVectors(vector, topK = 5, filter = null) {
   try {
     if (!index) {
       throw new Error('Pinecone index not initialized');
@@ -112,7 +112,7 @@ export async function queryVectors(vector, topK = 5, filter = null) {
 }
 
 // Delete vectors by IDs
-export async function deleteVectors(ids) {
+async function deleteVectors(ids) {
   try {
     if (!index) {
       throw new Error('Pinecone index not initialized');
@@ -128,7 +128,7 @@ export async function deleteVectors(ids) {
 }
 
 // Get index stats
-export async function getIndexStats() {
+async function getIndexStats() {
   try {
     if (!index) {
       throw new Error('Pinecone index not initialized');
@@ -148,4 +148,12 @@ export async function getIndexStats() {
     throw error;
   }
 }
+
+module.exports = {
+  initializePinecone,
+  upsertVectors,
+  queryVectors,
+  deleteVectors,
+  getIndexStats
+};
 
